@@ -1,0 +1,59 @@
+logging:
+  level:
+    '[com.example.movie]': TRACE
+
+spring:
+  datasource:
+    hikari:
+      connection-timeout: 600000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 10
+    url: jdbc:postgresql://127.0.0.1/movie
+    username: nano
+    password: kambing
+  jpa:
+    database: POSTGRESQL
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 100
+        order_inserts: true
+    show-sql: true
+
+server:
+  port: 8081
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
+      - prod
+  
+server:
+  port: 80
+  
+---
+spring:
+  config:
+    activate:
+      on-profile:
+      - test
+  
+server:
+  port: 8003
+  
+---
+spring:
+  config:
+    activate:
+      on-profile:
+      - dev
+  
+server:
+  port: 8002
+  
