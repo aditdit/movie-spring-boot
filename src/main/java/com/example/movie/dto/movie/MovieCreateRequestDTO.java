@@ -1,5 +1,6 @@
-package com.example.movie.dto;
+package com.example.movie.dto.movie;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -24,18 +25,18 @@ public class MovieCreateRequestDTO {
 	private Long releaseDate;
 	
 	@NotNull
-	private Long budget;
+	private BigDecimal budget;
 	
 	@NotNull
-	private Long revenue;
+	private BigDecimal revenue;
 	
 	@NotNull
-	private Integer rating;
+	private Double rating;
 	
 	@NotBlank
 	private String language;
 	
-	@NotBlank
+	@NotNull
 	private Integer runtime;
 	
 	@NotEmpty
@@ -48,6 +49,6 @@ public class MovieCreateRequestDTO {
 	private List<String> directors;
 	
 	@NotEmpty
-	private List<MovieCastCreateRequestDto> casts;
+	private List<MovieCastCreateRequestDTO> casts;
 	
 }

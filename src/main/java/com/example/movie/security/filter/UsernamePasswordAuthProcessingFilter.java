@@ -10,7 +10,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import com.example.movie.dto.LoginRequestDTO;
+import com.example.movie.dto.auth.LoginRequestDTO;
 import com.example.movie.exception.BadRequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

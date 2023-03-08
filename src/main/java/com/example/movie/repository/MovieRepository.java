@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.example.movie.domain.Movie;
-import com.example.movie.dto.MovieQueryDTO;
+import com.example.movie.dto.movie.MovieQueryDTO;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
 
@@ -16,7 +16,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
 	public Page<Movie> findByTitleLikeIgnoreCase(String title, Pageable pageable);
 
-	@Query("SELECT DISTINCT new com.example.movie.dto.MovieQueryDTO(m.id, m.title, m.description, m.rating) "
+	@Query("SELECT DISTINCT new com.example.movie.dto.movie.MovieQueryDTO(m.id, m.title, m.description, m.rating) "
 			+ "FROM Movie m "
 			+ "JOIN m.genres mg "
 			+ "WHERE LOWER(m.title) LIKE LOWER(CONCAT('%',:movieTitle,'%')) "

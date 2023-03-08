@@ -3,10 +3,10 @@ package com.example.movie.service;
 import java.util.List;
 
 import com.example.movie.domain.Genre;
-import com.example.movie.dto.GenreCreateRequestDTO;
-import com.example.movie.dto.GenreLisResponsetDTO;
-import com.example.movie.dto.GenreUpdateRequestDTO;
-import com.example.movie.dto.ResultPageResponseDTO;
+import com.example.movie.dto.common.ResultPageResponseDTO;
+import com.example.movie.dto.genre.GenreCreateRequestDTO;
+import com.example.movie.dto.genre.GenreLisResponsetDTO;
+import com.example.movie.dto.genre.GenreUpdateRequestDTO;
 
 public interface GenreService {
 

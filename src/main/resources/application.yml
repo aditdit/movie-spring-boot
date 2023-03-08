@@ -3,6 +3,10 @@ logging:
     '[com.example.movie]': TRACE
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 500KB
+      max-request-size: 500KB 
   datasource:
     hikari:
       connection-timeout: 600000
@@ -53,6 +57,15 @@ spring:
     activate:
       on-profile:
       - dev
+  datasource:
+    hikari:
+      connection-timeout: 600000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 10
+    url: ${DB_NA_URL}
+    username: ${DB_NA_USERNAME}
+    password: ${DB_NA_PASSWORD}
   
 server:
   port: 8002

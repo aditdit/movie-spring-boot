@@ -1,11 +1,14 @@
 package com.example.movie.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -35,11 +38,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class SecurityConfig {
 
 	private final static String AUTH_URL = "/v1/login";
-	private final static String V1_URL = "/v1/*";
-	private final static String V2_URL = "/v2/*";
 
-	private final static List<String> PERMIT_ENDPOINT_LIST = Arrays.asList(AUTH_URL);
-	private final static List<String> AUTHENTICATED_ENDPOINT_LIST = Arrays.asList(V1_URL, V2_URL);
+	private static final String[] AUTH_POST_WHITELIST = {
+			"/v1/registration"
+	};
+	
+	private static final String[] AUTH_GET_WHITELIST = {
+			"/v1/storage/file/**",
+			"/v1/movie/list",
+			"/v1/movie/*/detail",
+			"/v1/genre/list"
+	};
+	
+	private static final String[] SWAGGER_URL_WHITELIST = {
+			"/swagger-ui.html",
+	        "/v3/api-docs/**",
+	        "v3/api-docs/**",
+	        "/swagger-ui/**",
+	        "swagger-ui/**"
+	};
+	
+	private static final String[] AUTH_URL_LIST = {
+			"/v1/**"
+	};
+	
+	private final static List<String> PERMIT_ENDPOINT_LIST = new ArrayList<>();
+	private final static List<String> AUTHENTICATED_ENDPOINT_LIST = Arrays.asList(AUTH_URL_LIST);
 
 	@Autowired
 	private UsernamePasswordAuthProvider usernamePasswordAuthProvider;
@@ -76,6 +100,10 @@ public class SecurityConfig {
 	@Bean
 	public JWTAuthProcessingFilter jwtAuthProcessingFilter(TokenExtractor tokenExtractor,
 			AuthenticationFailureHandler failureHandler, AuthenticationManager authManager) {
+		Collections.addAll(PERMIT_ENDPOINT_LIST, AUTH_URL);
+		Collections.addAll(PERMIT_ENDPOINT_LIST, AUTH_POST_WHITELIST);
+		Collections.addAll(PERMIT_ENDPOINT_LIST, AUTH_GET_WHITELIST);
+		
 		SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(PERMIT_ENDPOINT_LIST, AUTHENTICATED_ENDPOINT_LIST);
 		JWTAuthProcessingFilter filter = new JWTAuthProcessingFilter(tokenExtractor, failureHandler, matcher);
 		filter.setAuthenticationManager(authManager);
@@ -91,11 +119,18 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http,
 			UsernamePasswordAuthProcessingFilter usernamePasswordAuthProcessingFilter,
 			JWTAuthProcessingFilter jwtAuthProcessingFilter) throws Exception {
-		http.authorizeHttpRequests().requestMatchers(V1_URL, V2_URL).authenticated().and().csrf().disable()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().httpBasic();
+		
+		http.authorizeHttpRequests()
+			.requestMatchers(SWAGGER_URL_WHITELIST).permitAll()
+			.requestMatchers(HttpMethod.POST, AUTH_POST_WHITELIST).permitAll()
+			.requestMatchers(HttpMethod.GET, AUTH_GET_WHITELIST).permitAll()
+			.requestMatchers(AUTH_URL_LIST).authenticated()
+			.and().csrf().disable()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and().httpBasic();
 
 		http.addFilterBefore(usernamePasswordAuthProcessingFilter, UsernamePasswordAuthenticationFilter.class)
-				.addFilterBefore(jwtAuthProcessingFilter, UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(jwtAuthProcessingFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

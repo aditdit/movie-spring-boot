@@ -10,10 +10,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.movie.domain.Genre;
-import com.example.movie.dto.GenreCreateRequestDTO;
-import com.example.movie.dto.GenreLisResponsetDTO;
-import com.example.movie.dto.GenreUpdateRequestDTO;
-import com.example.movie.dto.ResultPageResponseDTO;
+import com.example.movie.dto.common.ResultPageResponseDTO;
+import com.example.movie.dto.genre.GenreCreateRequestDTO;
+import com.example.movie.dto.genre.GenreLisResponsetDTO;
+import com.example.movie.dto.genre.GenreUpdateRequestDTO;
 import com.example.movie.exception.BadRequestException;
 import com.example.movie.repository.GenreRepository;
 import com.example.movie.service.GenreService;
@@ -39,16 +39,17 @@ public class GenreServiceImpl implements GenreService {
 	@Override
 	public ResultPageResponseDTO<GenreLisResponsetDTO> findGenreList(Integer pages, Integer limit, String sortBy,
 			String direction, String genreName) {
-
 		genreName = StringUtils.isEmpty(genreName) ? "%" : genreName + "%";
-		Sort sort = Sort.by(new Sort.Order(PaginationUtil.getSortBy(sortBy), sortBy));
+		Sort sort = Sort.by(new Sort.Order(PaginationUtil.getSortBy(direction), sortBy));
 		Pageable pageable = PageRequest.of(pages, limit, sort);
+		
 		Page<Genre> pageResult = genreRepository.findByNameLikeIgnoreCase(genreName, pageable);
 
 		List<GenreLisResponsetDTO> dtos = pageResult.stream().map((g) -> {
 			GenreLisResponsetDTO dto = new GenreLisResponsetDTO(g.getId(), g.getName());
 			return dto;
 		}).collect(Collectors.toList());
+		
 		return PaginationUtil.createResultPageDTO(dtos, pageResult.getTotalElements(), pageResult.getTotalPages());
 	}
 

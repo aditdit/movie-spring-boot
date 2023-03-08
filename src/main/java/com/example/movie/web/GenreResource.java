@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.movie.dto.GenreCreateRequestDTO;
-import com.example.movie.dto.GenreLisResponsetDTO;
-import com.example.movie.dto.GenreUpdateRequestDTO;
-import com.example.movie.dto.ResultPageResponseDTO;
+import com.example.movie.dto.common.ResultPageResponseDTO;
+import com.example.movie.dto.genre.GenreCreateRequestDTO;
+import com.example.movie.dto.genre.GenreLisResponsetDTO;
+import com.example.movie.dto.genre.GenreUpdateRequestDTO;
 import com.example.movie.service.GenreService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @Validated
@@ -33,13 +34,12 @@ public class GenreResource {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/v1/genre")
-	public ResponseEntity<Void> createGenre(@RequestBody GenreCreateRequestDTO dto) {
+	public ResponseEntity<Void> createGenre(@RequestBody @Valid GenreCreateRequestDTO dto) {
 		genreService.createGenre(dto);
 		return ResponseEntity.created(URI.create("/v1/genre")).build();
 	}
 
-	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/v1/genre")
+	@GetMapping("/v1/genre/list")
 	public ResponseEntity<ResultPageResponseDTO<GenreLisResponsetDTO>> findGenreList(
 			@RequestParam(name = "pages", required = true, defaultValue = "0") Integer pages,
 			@RequestParam(name = "limit", required = true, defaultValue = "10") Integer limit,
@@ -48,20 +48,19 @@ public class GenreResource {
 			@RequestParam(name = "genreName", required = false) String genreName) {
 		return ResponseEntity.ok().body(genreService.findGenreList(pages, limit, sortBy, direction, genreName));
 	}
-	
+
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/v1/genre/{genreId}")
-	public ResponseEntity<Void> updateGenre(@PathVariable Long genreId,
-			@RequestBody GenreUpdateRequestDTO dto) {
+	public ResponseEntity<Void> updateGenre(@PathVariable Long genreId, @RequestBody @Valid GenreUpdateRequestDTO dto) {
 		genreService.updateGenre(genreId, dto);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/v1/genre/{genreId}")
 	public ResponseEntity<Void> deleteGenre(@PathVariable Long genreId) {
 		genreService.deleteGenre(genreId);
 		return ResponseEntity.ok().build();
 	}
-	
+
 }

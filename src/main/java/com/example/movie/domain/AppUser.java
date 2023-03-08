@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,9 +19,11 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
 @Entity
 @Table(name = "app_user", indexes = { @Index(name = "uk_username", columnList = "username") })
 public class AppUser extends AbstractSecureBaseEntity implements UserDetails {
@@ -38,7 +41,10 @@ public class AppUser extends AbstractSecureBaseEntity implements UserDetails {
 	@Column(name = "password", nullable = false)
 	private String password;
 
-	@OneToOne
+	@Column(name = "email", nullable = false)
+	private String email;
+
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "profile_id", nullable = false)
 	private Profile profile;
 

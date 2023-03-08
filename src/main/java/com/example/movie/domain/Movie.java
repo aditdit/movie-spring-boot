@@ -1,5 +1,6 @@
 package com.example.movie.domain;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,9 +17,11 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
 @Entity
 @Table(name = "movie")
 @SQLDelete(sql = "UPDATE movie SET deleted = true WHERE id = ?")
@@ -42,13 +45,13 @@ public class Movie extends AbstractBaseEntity {
 	private LocalDate releaseDate;
 
 	@Column(name = "budget", nullable = false)
-	private Long budget;
+	private BigDecimal budget;
 
 	@Column(name = "revenue", nullable = false)
-	private Long revenue;
+	private BigDecimal revenue;
 
 	@Column(name = "rating")
-	private Integer rating;
+	private Double rating;
 
 	@Column(name = "language", nullable = false)
 	private String language;
@@ -83,9 +86,4 @@ public class Movie extends AbstractBaseEntity {
 					@JoinColumn(name = "profile_id", referencedColumnName = "id") })
 	private List<Profile> casts;
 
-	@ManyToMany
-	@JoinTable(name = "movie_comment", joinColumns = {
-			@JoinColumn(name = "movie_id", referencedColumnName = "id") }, inverseJoinColumns = {
-					@JoinColumn(name = "profile_id", referencedColumnName = "id") })
-	private List<Profile> comments;
 }

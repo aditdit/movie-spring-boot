@@ -3,10 +3,10 @@ package com.example.movie.service;
 import java.util.List;
 
 import com.example.movie.domain.Company;
-import com.example.movie.dto.CompanyCreateRequestDTO;
-import com.example.movie.dto.CompanyLisResponsetDTO;
-import com.example.movie.dto.CompanyUpdateRequestDTO;
-import com.example.movie.dto.ResultPageResponseDTO;
+import com.example.movie.dto.common.ResultPageResponseDTO;
+import com.example.movie.dto.company.CompanyCreateRequestDTO;
+import com.example.movie.dto.company.CompanyLisResponsetDTO;
+import com.example.movie.dto.company.CompanyUpdateRequestDTO;
 
 public interface CompanyService {
 

@@ -1,4 +1,4 @@
-package com.example.movie.dto;
+package com.example.movie.dto.common;
 
 import java.io.Serializable;
 import java.util.List;

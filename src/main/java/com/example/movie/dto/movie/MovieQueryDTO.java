@@ -1,4 +1,4 @@
-package com.example.movie.dto;
+package com.example.movie.dto.movie;
 
 import java.io.Serializable;
 
@@ -16,5 +16,5 @@ public class MovieQueryDTO implements Serializable {
 
 	private String description;
 	
-	private Integer rating;
+	private Double rating;
 }

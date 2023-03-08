@@ -10,10 +10,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.movie.domain.Profile;
-import com.example.movie.dto.ProfileCreateRequestDTO;
-import com.example.movie.dto.ProfileLisResponsetDTO;
-import com.example.movie.dto.ProfileUpdateRequestDTO;
-import com.example.movie.dto.ResultPageResponseDTO;
+import com.example.movie.dto.common.ResultPageResponseDTO;
+import com.example.movie.dto.profile.ProfileCreateRequestDTO;
+import com.example.movie.dto.profile.ProfileLisResponsetDTO;
+import com.example.movie.dto.profile.ProfileUpdateRequestDTO;
 import com.example.movie.exception.BadRequestException;
 import com.example.movie.repository.ProfileRepository;
 import com.example.movie.service.ProfileService;
@@ -41,14 +41,16 @@ public class ProfileServiceImpl implements ProfileService {
 	public ResultPageResponseDTO<ProfileLisResponsetDTO> findProfileList(Integer pages, Integer limit, String sortBy,
 			String direction, String fullname) {
 		fullname = StringUtils.isEmpty(fullname) ? "%" : fullname + "%";
-		Sort sort = Sort.by(new Sort.Order(PaginationUtil.getSortBy(sortBy), sortBy));
+		Sort sort = Sort.by(new Sort.Order(PaginationUtil.getSortBy(direction), sortBy));
 		Pageable pageable = PageRequest.of(pages, limit, sort);
+
 		Page<Profile> pageResult = profileRepository.findByFullnameLikeIgnoreCase(fullname, pageable);
 
 		List<ProfileLisResponsetDTO> dtos = pageResult.stream().map((p) -> {
 			ProfileLisResponsetDTO dto = new ProfileLisResponsetDTO(p.getSecureId(), p.getFullname());
 			return dto;
 		}).collect(Collectors.toList());
+
 		return PaginationUtil.createResultPageDTO(dtos, pageResult.getTotalElements(), pageResult.getTotalPages());
 	}
 
@@ -59,6 +61,13 @@ public class ProfileServiceImpl implements ProfileService {
 			throw new BadRequestException("profile cant empty");
 		}
 		return profiles;
+	}
+
+	@Override
+	public Profile findProfile(String profileId) {
+		Profile profile = profileRepository.findBySecureId(profileId)
+				.orElseThrow(() -> new BadRequestException("invalid.profileId"));
+		return profile;
 	}
 
 	@Override
