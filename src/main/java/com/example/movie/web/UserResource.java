@@ -16,7 +16,6 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @RestController
-@SecurityRequirement(name = "bearerAuth")
 public class UserResource {
 
 	private final AppUserService appUserService;

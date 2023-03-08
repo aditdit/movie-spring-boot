@@ -30,11 +30,11 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @RestController
 @Validated
-@SecurityRequirement(name = "bearerAuth")
 public class MovieResource {
 
 	private final MovieService movieService;
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/v1/movie")
 	public ResponseEntity<Void> createMovie(@RequestBody @Valid MovieCreateRequestDTO dto) {
@@ -42,6 +42,8 @@ public class MovieResource {
 		return ResponseEntity.created(URI.create("/v1/movie")).build();
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
+	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/v1/movie/{movieId}/comment")
 	public ResponseEntity<Void> createMovieComment(@PathVariable Long movieId,
 			@RequestBody @Valid MovieCommentCreateRequestDTO dto) {
@@ -76,6 +78,7 @@ public class MovieResource {
 		return ResponseEntity.ok().body(movieService.findMovieDetail(movieId));
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/v1/movie/{movieId}")
 	public ResponseEntity<Void> updateMovie(@PathVariable Long movieId, @RequestBody @Valid MovieUpdateRequestDTO dto) {
@@ -83,6 +86,7 @@ public class MovieResource {
 		return ResponseEntity.ok().build();
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("isAuthenticated()")
 	@DeleteMapping("/v1/movie/{movieId}")
 	public ResponseEntity<Void> deleteMovie(@PathVariable Long movieId) {
@@ -90,6 +94,7 @@ public class MovieResource {
 		return ResponseEntity.ok().build();
 	}
 	
+	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("isAuthenticated()")
 	@DeleteMapping("/v1/movie/comment/{movieCommentId}")
 	public ResponseEntity<Void> deleteMovieComment(@PathVariable Long movieCommentId) {

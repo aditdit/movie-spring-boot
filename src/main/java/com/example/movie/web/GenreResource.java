@@ -27,11 +27,11 @@ import lombok.AllArgsConstructor;
 @Validated
 @AllArgsConstructor
 @RestController
-@SecurityRequirement(name = "bearerAuth")
 public class GenreResource {
 
 	private final GenreService genreService;
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/v1/genre")
 	public ResponseEntity<Void> createGenre(@RequestBody @Valid GenreCreateRequestDTO dto) {
@@ -49,6 +49,7 @@ public class GenreResource {
 		return ResponseEntity.ok().body(genreService.findGenreList(pages, limit, sortBy, direction, genreName));
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/v1/genre/{genreId}")
 	public ResponseEntity<Void> updateGenre(@PathVariable Long genreId, @RequestBody @Valid GenreUpdateRequestDTO dto) {
@@ -56,6 +57,7 @@ public class GenreResource {
 		return ResponseEntity.ok().build();
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/v1/genre/{genreId}")
 	public ResponseEntity<Void> deleteGenre(@PathVariable Long genreId) {
