@@ -6,7 +6,6 @@ import java.util.List;
 import com.example.movie.dto.company.CompanyLisResponsetDTO;
 import com.example.movie.dto.genre.GenreLisResponsetDTO;
 import com.example.movie.dto.profile.ProfileLisResponsetDTO;
-import com.example.movie.dto.storage.StorageListResponseDTO;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 

@@ -8,9 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
+import com.example.movie.config.DoConfig;
+import com.example.movie.domain.AppUser;
 import com.example.movie.domain.Company;
 import com.example.movie.domain.Genre;
 import com.example.movie.domain.Movie;
@@ -31,8 +35,8 @@ import com.example.movie.dto.movie.MovieLisResponsetDTO;
 import com.example.movie.dto.movie.MovieQueryDTO;
 import com.example.movie.dto.movie.MovieUpdateRequestDTO;
 import com.example.movie.dto.profile.ProfileLisResponsetDTO;
-import com.example.movie.dto.storage.StorageListResponseDTO;
 import com.example.movie.exception.BadRequestException;
+import com.example.movie.repository.AppUserRepository;
 import com.example.movie.repository.MovieCastRepository;
 import com.example.movie.repository.MovieCommentRepository;
 import com.example.movie.repository.MovieRepository;
@@ -41,7 +45,6 @@ import com.example.movie.service.GenreService;
 import com.example.movie.service.MovieService;
 import com.example.movie.service.ProfileService;
 import com.example.movie.util.PaginationUtil;
-import com.example.movie.web.StorageResource;
 
 import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
@@ -61,6 +64,10 @@ public class MovieServiceImpl implements MovieService {
 	private final CompanyService companyService;
 
 	private final ProfileService profileService;
+
+	private final AppUserRepository appUserRepository;
+
+	private final DoConfig doConfig;
 
 	@Override
 	public void createMovie(MovieCreateRequestDTO dto) {
@@ -108,13 +115,18 @@ public class MovieServiceImpl implements MovieService {
 
 	@Override
 	public void createMovieComment(Long id, MovieCommentCreateRequestDTO dto) {
-		Profile profile = profileService.findProfile(dto.profileId());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String currentUser = authentication.getName();
+
+		AppUser profile = appUserRepository.findByUsername(currentUser)
+				.orElseThrow(() -> new UsernameNotFoundException("invalid.user"));
+
 		Movie movie = movieRepository.findById(id).orElseThrow(() -> new BadRequestException("invalid.movieId"));
 
 		MovieComment movieComment = new MovieComment();
 		movieComment.setComment(dto.comment());
 		movieComment.setMovie(movie);
-		movieComment.setProfile(profile);
+		movieComment.setProfile(profile.getProfile());
 
 		movieCommentRepository.save(movieComment);
 	}
@@ -173,8 +185,7 @@ public class MovieServiceImpl implements MovieService {
 		}).collect(Collectors.toList());
 
 		List<String> storages = movie.getStorages().stream().map((s) -> {
-			String url = MvcUriComponentsBuilder.fromMethodName(StorageResource.class, "getFile", s.getName()).build()
-					.toString();
+			String url = doConfig.getS3Endpoint() + s.getName() + "." + s.getType();
 			return url;
 		}).collect(Collectors.toList());
 

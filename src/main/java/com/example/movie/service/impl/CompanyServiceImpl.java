@@ -1,6 +1,7 @@
 package com.example.movie.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -30,9 +31,13 @@ public class CompanyServiceImpl implements CompanyService {
 
 	@Override
 	public void createCompany(CompanyCreateRequestDTO dto) {
-		Company company = new Company();
-		company.setName(dto.name());
-		companyRepository.save(company);
+		Optional<Company> findCompany = companyRepository.findByName(dto.name());
+
+		if (!findCompany.isPresent()) {
+			Company company = new Company();
+			company.setName(dto.name());
+			companyRepository.save(company);
+		}
 	}
 
 	@Override

@@ -1,19 +1,19 @@
 package com.example.movie.service.impl;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.example.movie.config.DoConfig;
 import com.example.movie.domain.Movie;
 import com.example.movie.domain.Storage;
+import com.example.movie.exception.BadRequestException;
 import com.example.movie.repository.StorageRepository;
 import com.example.movie.service.MovieService;
 import com.example.movie.service.StorageService;
@@ -24,21 +24,24 @@ import lombok.AllArgsConstructor;
 @Service
 public class StorageServiceImpl implements StorageService {
 
-	private final Path root = Paths.get("uploads");
-
 	private final StorageRepository storageRepository;
 
 	private final MovieService movieService;
 
+	private final DoConfig doConfig;
+
+	private final String FOLDER = "files/";
+
 	@Override
 	public void save(MultipartFile file, Long movieId) {
 		try {
-			Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
+			String key = FOLDER + file.getOriginalFilename();
+			saveImageToServer(file, key);
 
 			Movie movie = movieService.findMovie(movieId);
 			Storage storage = new Storage();
 			storage.setType(file.getContentType());
-			storage.setName(StringUtils.cleanPath(file.getOriginalFilename()));
+			storage.setName(file.getOriginalFilename());
 			storage.setMovie(movie);
 
 			storageRepository.save(storage);
@@ -51,19 +54,30 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
-	@Override
-	public Resource load(String filename) {
-		try {
-			Path file = root.resolve(filename);
-			Resource resource = new UrlResource(file.toUri());
-
-			if (resource.exists() || resource.isReadable()) {
-				return resource;
-			} else {
-				throw new RuntimeException("Could not read the file!");
-			}
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("Error: " + e.getMessage());
+	private void saveImageToServer(MultipartFile multipartFile, String key) throws IOException {
+		ObjectMetadata metadata = new ObjectMetadata();
+		metadata.setContentLength(multipartFile.getInputStream().available());
+		if (multipartFile.getContentType() != null && !"".equals(multipartFile.getContentType())) {
+			metadata.setContentType(multipartFile.getContentType());
 		}
+		doConfig.getS3().putObject(
+				new PutObjectRequest(doConfig.getDoSpaceBucket(), key, multipartFile.getInputStream(), metadata)
+						.withCannedAcl(CannedAccessControlList.PublicRead));
+	}
+
+	@Override
+	public void deleteFile(Long fileId) {
+		try {
+			Storage storage = storageRepository.findById(fileId)
+					.orElseThrow(() -> new BadRequestException("invalid.fileId"));
+
+			String key = FOLDER + storage.getName();
+
+			doConfig.getS3().deleteObject(new DeleteObjectRequest(doConfig.getDoSpaceBucket(), key));
+			storageRepository.delete(storage);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage());
+		}
+
 	}
 }

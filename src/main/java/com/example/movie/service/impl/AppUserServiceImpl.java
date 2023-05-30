@@ -1,6 +1,7 @@
 package com.example.movie.service.impl;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,23 +37,31 @@ public class AppUserServiceImpl implements AppUserService {
 
 	@Override
 	public void createUser(UserRequestDTO dto) {
-		Role role = roleRepository.findByName("USER");
+		Optional<AppUser> findUser = appUserRepository.findByUsername(dto.getUsername());
+		
+		if (findUser.isPresent()) {
+			throw new UsernameNotFoundException("username.exists");
+		} else {
+			
+			Role role = roleRepository.findByName("USER");
 
-		Set<Role> roles = new HashSet<>();
-		roles.add(role);
+			Set<Role> roles = new HashSet<>();
+			roles.add(role);
 
-		Profile profile = new Profile();
-		profile.setFullname(dto.getUsername());
-		profile.setGender("");
+			Profile profile = new Profile();
+			profile.setFullname(dto.getUsername());
+			profile.setGender("");
 
-		AppUser appUser = new AppUser();
-		appUser.setUsername(dto.getUsername());
-		appUser.setPassword(passwordEncoder.encode(dto.getPassword()));
-		appUser.setEmail(dto.getEmail());
-		appUser.setProfile(profile);
-		appUser.setRoles(roles);
+			AppUser appUser = new AppUser();
+			appUser.setUsername(dto.getUsername());
+			appUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+			appUser.setEmail(dto.getEmail());
+			appUser.setProfile(profile);
+			appUser.setRoles(roles);
 
-		appUserRepository.save(appUser);
+			appUserRepository.save(appUser);
+		}
+
 	}
 
 }

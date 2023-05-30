@@ -2,6 +2,16 @@ logging:
   level:
     '[com.example.movie]': TRACE
 
+
+## DO properties
+do:
+  spaces:
+    key: ${DO_SPACE_KEY}
+    secret: ${DO_SPACE_SECRET}
+    endpoint: ${DO_SPACE_ENDPOINT}
+    region: ${DO_SPACE_REGION}
+    bucket: ${DO_SPACE_BUCKET}
+    
 spring:
   servlet:
     multipart:
@@ -68,5 +78,5 @@ spring:
     password: ${DB_NA_PASSWORD}
   
 server:
-  port: 8002
+  port: 8080
   

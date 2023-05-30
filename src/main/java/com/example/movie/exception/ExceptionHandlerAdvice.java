@@ -14,6 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.example.movie.dto.error.ErrorResponseDTO;
 import com.example.movie.dto.error.InvalidDataErrorResponseDTO;
 import com.example.movie.dto.error.NotValidResponseDTO;
@@ -76,5 +77,14 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 				HttpStatus.BAD_REQUEST);
 		return ResponseEntity.badRequest().body(errorResponse);
 	}
+	
+    @ExceptionHandler(AmazonS3Exception.class)
+    public final ResponseEntity<Object> handleAmazonS3Exception(AmazonS3Exception ex, WebRequest request) {
+		List<String> details = new ArrayList<>();
+		details.add(ex.getLocalizedMessage());
+		ErrorResponseDTO errorResponse = ErrorResponseDTO.of("failed upload", details, ErrorCode.OTHER_ERROR,
+				HttpStatus.INTERNAL_SERVER_ERROR);
+		return ResponseEntity.badRequest().body(errorResponse);
+    }
 
 }

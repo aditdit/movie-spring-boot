@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.movie.dto.common.ResultPageResponseDTO;
 import com.example.movie.dto.profile.ProfileCreateRequestDTO;
+import com.example.movie.dto.profile.ProfileDetailResponseDTO;
 import com.example.movie.dto.profile.ProfileLisResponsetDTO;
 import com.example.movie.dto.profile.ProfileUpdateRequestDTO;
 import com.example.movie.service.ProfileService;
@@ -46,11 +47,32 @@ public class ProfileResource {
 			@RequestParam(name = "pages", required = true, defaultValue = "0") Integer pages,
 			@RequestParam(name = "limit", required = true, defaultValue = "10") Integer limit,
 			@RequestParam(name = "sortBy", required = true, defaultValue = "fullname") String sortBy,
-			@RequestParam(name = "direction", required = true, defaultValue = "asc") String direction,
+			@RequestParam(name = "direction", required = true, defaultValue = "desc") String direction,
 			@RequestParam(name = "fullname", required = false) String fullname) {
 		return ResponseEntity.ok().body(profileService.findProfileList(pages, limit, sortBy, direction, fullname));
 	}
+	
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/v1/profile/detail")
+	public ResponseEntity<ProfileDetailResponseDTO> findProfileDetail() {
+		return ResponseEntity.ok().body(profileService.findProfileDetail());
+	}
 
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/v1/profile/{profileId}")
+	public ResponseEntity<ProfileDetailResponseDTO> findProfileDetail(
+			@PathVariable @Size(max = 36, min = 36, message = "profile.id.not.uuid") String profileId) {
+		return ResponseEntity.ok().body(profileService.findProfileDetailByProfileId(profileId));
+	}
+
+	@PreAuthorize("isAuthenticated()")
+	@PutMapping("/v1/profile")
+	public ResponseEntity<Void> updateProfileDetail(
+			@RequestBody @Valid ProfileUpdateRequestDTO dto) {
+		profileService.updateProfileDetail(dto);
+		return ResponseEntity.ok().build();
+	}
+		
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/v1/profile/{profileId}")
 	public ResponseEntity<Void> updateProfile(

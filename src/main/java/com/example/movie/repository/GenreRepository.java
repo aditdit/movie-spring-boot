@@ -13,6 +13,8 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
 
 	public Optional<Genre> findById(Long id);
 
+	public Optional<Genre> findByName(String name);
+
 	public List<Genre> findByIdIn(List<Long> genreIdList);
 
 	public Page<Genre> findByNameLikeIgnoreCase(String name, Pageable pageable);

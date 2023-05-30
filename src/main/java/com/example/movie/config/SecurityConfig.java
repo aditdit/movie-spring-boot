@@ -47,7 +47,7 @@ public class SecurityConfig {
 			"/v1/storage/file/**",
 			"/v1/movie/list",
 			"/v1/movie/*/detail",
-			"/v1/movie/*/comment",
+			"/v1/movie/*/comment/list",
 			"/v1/genre/list"
 	};
 	

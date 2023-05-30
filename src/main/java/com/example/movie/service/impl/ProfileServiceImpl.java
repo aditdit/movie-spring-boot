@@ -7,14 +7,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.example.movie.domain.AppUser;
 import com.example.movie.domain.Profile;
 import com.example.movie.dto.common.ResultPageResponseDTO;
 import com.example.movie.dto.profile.ProfileCreateRequestDTO;
+import com.example.movie.dto.profile.ProfileDetailResponseDTO;
 import com.example.movie.dto.profile.ProfileLisResponsetDTO;
 import com.example.movie.dto.profile.ProfileUpdateRequestDTO;
 import com.example.movie.exception.BadRequestException;
+import com.example.movie.repository.AppUserRepository;
 import com.example.movie.repository.ProfileRepository;
 import com.example.movie.service.ProfileService;
 import com.example.movie.util.PaginationUtil;
@@ -27,6 +33,8 @@ import lombok.AllArgsConstructor;
 public class ProfileServiceImpl implements ProfileService {
 
 	private final ProfileRepository profileRepository;
+
+	private final AppUserRepository appUserRepository;
 
 	@Override
 	public void createProfile(ProfileCreateRequestDTO dto) {
@@ -71,9 +79,47 @@ public class ProfileServiceImpl implements ProfileService {
 	}
 
 	@Override
+	public ProfileDetailResponseDTO findProfileDetail() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String currentUser = authentication.getName();
+
+		AppUser user = appUserRepository.findByUsername(currentUser)
+				.orElseThrow(() -> new UsernameNotFoundException("invalid.user"));
+		Profile profile = user.getProfile();
+		ProfileDetailResponseDTO dto = new ProfileDetailResponseDTO(profile.getSecureId(), profile.getFullname(),
+				profile.getGender());
+		return dto;
+	}
+
+	@Override
+	public ProfileDetailResponseDTO findProfileDetailByProfileId(String profileId) {
+		Profile profile = profileRepository.findBySecureId(profileId)
+				.orElseThrow(() -> new BadRequestException("invalid.profileId"));
+
+		ProfileDetailResponseDTO dto = new ProfileDetailResponseDTO(profile.getSecureId(), profile.getFullname(),
+				profile.getGender());
+
+		return dto;
+	}
+
+	@Override
 	public void updateProfile(String id, ProfileUpdateRequestDTO dto) {
 		Profile profile = profileRepository.findBySecureId(id)
 				.orElseThrow(() -> new BadRequestException("invalid.profileId"));
+		profile.setFullname(dto.fullname());
+		profile.setGender(dto.gender());
+		profileRepository.save(profile);
+	}
+
+	@Override
+	public void updateProfileDetail(ProfileUpdateRequestDTO dto) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String currentUser = authentication.getName();
+
+		AppUser user = appUserRepository.findByUsername(currentUser)
+				.orElseThrow(() -> new UsernameNotFoundException("invalid.user"));
+
+		Profile profile = user.getProfile();
 		profile.setFullname(dto.fullname());
 		profile.setGender(dto.gender());
 		profileRepository.save(profile);

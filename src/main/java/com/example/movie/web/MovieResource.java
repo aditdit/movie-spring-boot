@@ -63,7 +63,7 @@ public class MovieResource {
 				.body(movieService.findMovieList(pages, limit, sortBy, direction, movieTitle, movieGenre));
 	}
 
-	@GetMapping("/v1/movie/{movieId}/comment")
+	@GetMapping("/v1/movie/{movieId}/comment/list")
 	public ResponseEntity<ResultPageResponseDTO<MovieCommentListResponseDTO>> findMovieCommentList(
 			@PathVariable Long movieId,
 			@RequestParam(name = "pages", required = true, defaultValue = "0") Integer pages,
@@ -93,7 +93,7 @@ public class MovieResource {
 		movieService.deleteMovie(movieId);
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@SecurityRequirement(name = "bearerAuth")
 	@PreAuthorize("isAuthenticated()")
 	@DeleteMapping("/v1/movie/comment/{movieCommentId}")

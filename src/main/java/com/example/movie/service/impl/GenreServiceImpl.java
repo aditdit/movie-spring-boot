@@ -1,6 +1,7 @@
 package com.example.movie.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -30,10 +31,14 @@ public class GenreServiceImpl implements GenreService {
 
 	@Override
 	public void createGenre(GenreCreateRequestDTO dto) {
-		Genre genre = new Genre();
-		genre.setName(dto.name());
+		Optional<Genre> findGenre = genreRepository.findByName(dto.name());
 
-		genreRepository.save(genre);
+		if (!findGenre.isPresent()) {
+			Genre genre = new Genre();
+			genre.setName(dto.name());
+
+			genreRepository.save(genre);
+		}
 	}
 
 	@Override

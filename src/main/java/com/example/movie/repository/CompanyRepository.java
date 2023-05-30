@@ -12,6 +12,8 @@ import com.example.movie.domain.Company;
 public interface CompanyRepository extends JpaRepository<Company, Long> {
 
 	public Optional<Company> findById(Long id);
+	
+	public Optional<Company> findByName(String name);
 
 	public List<Company> findByIdIn(List<Long> companyIdList);
 

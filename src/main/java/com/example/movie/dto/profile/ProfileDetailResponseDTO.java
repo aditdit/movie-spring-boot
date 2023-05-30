@@ -1,10 +1,8 @@
-package com.example.movie.dto.movie;
+package com.example.movie.dto.profile;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import jakarta.validation.constraints.NotBlank;
-
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record MovieCommentCreateRequestDTO(@NotBlank String comment) {
+public record ProfileDetailResponseDTO(String id, String fullname, String gender) {
 }
